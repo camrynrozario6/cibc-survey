@@ -188,7 +188,7 @@ function render(){
   if(mode==="responses"){$("#progress").innerHTML="";return renderResponses();}
   renderProgress();
   if(page===-1){
-    main.innerHTML=`<div class="card intro"><h2>Thanks for helping with this research</h2><p>I'm a UX designer studying how people understand their spending and balances in the CIBC mobile app. It takes about 5 to 7 minutes. Your answers are anonymous. Please don't enter account numbers or exact amounts.</p><div class="nav"><span></span><button class="primary" id="start">Start the survey</button></div></div>`;
+    main.innerHTML=`<div class="card intro"><h2>Thanks for helping with this research</h2><p>I'm a recent Interaction Design graduate from Sheridan College, studying how people understand their spending and balances in the CIBC mobile app. It takes about 5 to 7 minutes. Your answers are anonymous. Please don't enter account numbers or exact amounts.</p><div class="nav"><span></span><button class="primary" id="start">Start the survey</button></div></div>`;
     $("#start").onclick=()=>{page=0;render();scrollTo(0,0);};
     return;
   }
