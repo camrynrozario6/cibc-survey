@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spending Clarity Survey</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+/* Layout: one calm column, one survey page at a time, a ledger-style progress strip on top. Built for in-person use on a laptop. */
+:root{
+  --bg:#F3F5F4; --surface:#FFFFFF; --ink:#18221F; --muted:#5B6A65; --line:#D6DEDA;
+  --accent:#2F6B5A; --accent-ink:#FFFFFF; --accent-soft:#E2EEE9; --warn:#A3402F;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111816; --surface:#19221F; --ink:#E7EEEB; --muted:#9AAAA4; --line:#2C3934;
+  --accent:#6FC3A8; --accent-ink:#0D1714; --accent-soft:#1F332C; --warn:#F08C78; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111816; --surface:#19221F; --ink:#E7EEEB; --muted:#9AAAA4; --line:#2C3934;
+  --accent:#6FC3A8; --accent-ink:#0D1714; --accent-soft:#1F332C; --warn:#F08C78; color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55}
+.wrap{max-width:720px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,5vw,40px);line-height:1.1;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:500;font-size:22px;margin:0;text-wrap:balance}
+.progress{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.progress span{height:6px;border-radius:3px;background:var(--line)}
+.progress span.on{background:var(--accent)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:26px}
+.q{display:flex;flex-direction:column;gap:10px;border:0;margin:0;padding:0;min-width:0}
+.q legend,.q label.qt{font-weight:600;font-size:18px;padding:0;margin-bottom:4px}
+.num{color:var(--accent);font-family:var(--display);margin-right:6px}
+.hint{color:var(--muted);font-size:15px;margin-top:-6px}
+.opt{display:flex;align-items:flex-start;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.opt input{margin-top:4px;accent-color:var(--accent);width:18px;height:18px;flex:none}
+.opts{display:flex;flex-direction:column;gap:8px}
+.other-text{margin-left:42px}
+input[type=text],textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;box-sizing:border-box}
+textarea{min-height:100px;resize:vertical}
+input:focus-visible,textarea:focus-visible,button:focus-visible,.opt:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.scale label{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-family:var(--display);font-size:20px}
+.scale label:has(input:checked){background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.scale input{position:absolute;opacity:0;pointer-events:none}
+.scale-ends{display:flex;justify-content:space-between;color:var(--muted);font-size:14px}
+.grid-wrap{overflow-x:auto}
+table.mgrid{border-collapse:collapse;width:100%;min-width:560px;font-size:15px}
+.mgrid th,.mgrid td{padding:10px 6px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
+.mgrid th:first-child,.mgrid td:first-child{text-align:left;width:38%}
+.mgrid thead th{font-weight:600;color:var(--muted);font-size:13px}
+.mgrid input{accent-color:var(--accent);width:18px;height:18px}
+.err{color:var(--warn);font-size:15px;font-weight:600}
+.nav{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+button{font:inherit;font-weight:600;border-radius:10px;padding:12px 22px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:disabled{opacity:.55;cursor:default}
+.mock{border:1px dashed var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center;color:var(--muted)}
+.mock img{border-radius:8px}
+.intro p,.done p{margin:0;max-width:62ch}
+.foot{display:flex;justify-content:space-between;color:var(--muted);font-size:14px;flex-wrap:wrap;gap:8px}
+.foot a{color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:14px}
+.stat b{display:block;font-family:var(--display);font-size:30px;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:14px}
+.list{overflow-x:auto}
+.list table{border-collapse:collapse;width:100%;font-size:14px}
+.list td,.list th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.toast{color:var(--accent);font-weight:600}
+@media (prefers-reduced-motion:no-preference){.card{animation:in .25s ease-out}@keyframes in{from{transform:translateY(6px)}to{transform:none}}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">UX research · CIBC mobile banking</div>
+    <h1 id="title">Understanding your spending in the CIBC app</h1>
+    <div class="progress" id="progress" aria-hidden="true"></div>
+  </header>
+  <main id="main"></main>
+  <div class="foot"><span id="status"></span><a href="#responses" id="toggle">Responses</a></div>
+</div>
+
+<script>
+const PAGES = [
+  {title:"Before we start", qs:[
+    {id:"q1",n:1,type:"radio",text:"Do you currently use CIBC?",req:true,opts:["Yes, I use CIBC.","No, I don't currently use CIBC."]}]},
+  {title:"About you", qs:[
+    {id:"q2",n:2,type:"radio",text:"How often do you use the CIBC mobile banking app?",req:true,opts:["Multiple times a day","About once a day","A few times a week","About once a week","A few times a month","Rarely"]},
+    {id:"q3",n:3,type:"check",text:"Which CIBC accounts do you use through the mobile app?",hint:"Select all that apply.",req:true,other:true,opts:["Chequing account","Savings account","Credit card","Line of credit","Mortgage or loan","Prefer not to say"]}]},
+  {title:"How you use the app today", qs:[
+    {id:"q4",n:4,type:"check",text:"What do you typically use the CIBC app for?",hint:"Select all that apply.",req:true,other:true,opts:["Checking my account balance","Checking my credit card balance","Reviewing recent transactions","Checking how much I've spent","Tracking my monthly spending","Checking pending transactions","Checking payments or amounts due","Paying bills or transferring money","Monitoring my budget"]},
+    {id:"q5",n:5,type:"radio",text:"When you want to know how much you've spent during the current month, what do you usually do?",req:true,other:true,opts:["I can find the information directly in the CIBC app.","I review my transactions and calculate the total myself.","I use the CIBC Spending Insights feature.","I use another budgeting or financial tracking app.","I track my spending using a spreadsheet or notes.","I check my bank statements.","I don't actively track my monthly spending."]},
+    {id:"q6",n:6,type:"scale",text:"How easy or difficult is it to understand your spending using the CIBC mobile app?",req:true},
+    {id:"q6b",type:"short",text:"What makes it easy or difficult?",hint:"Optional."},
+    {id:"q7",n:7,type:"radio",text:"Have you ever had difficulty understanding your balance or how much money you had available when using the CIBC app?",req:true,opts:["Yes, frequently","Yes, occasionally","Rarely","Never","Not sure"]}]},
+  {title:"Understanding your balance", when:a=>["Yes, frequently","Yes, occasionally","Rarely"].includes(a.q7), qs:[
+    {id:"q8",n:8,type:"check",text:"If you've experienced difficulty understanding your balance, what was confusing?",hint:"Optional. Select all that apply.",other:true,opts:["Understanding the difference between my current balance and available balance","Understanding how pending transactions affect my balance","Understanding whether a transaction has been completed","Understanding how credit card payments affect my balance","Reconciling my balance with the transactions shown","Finding the information I needed in the app","I haven't experienced any of these issues."]}]},
+  {title:"Working things out yourself", qs:[
+    {id:"q9",n:9,type:"radio",text:"How often do you need to calculate or check information yourself to understand your spending or available balance?",req:true,opts:["Never","Rarely","Sometimes","Often","Very often"]},
+    {id:"q9b",type:"short",text:"If you do this, what information are you usually trying to figure out?",hint:"Optional."}]},
+  {title:"What matters to you", qs:[
+    {id:"q10",n:10,type:"check",max:3,text:"When checking your finances in the CIBC app, which information is most important to you?",hint:"Choose up to 3.",req:true,other:true,opts:["My current account balance","My available balance","My total spending this month","My spending by category, such as groceries or transportation","My pending transactions","My completed transactions","My remaining credit card balance","My outstanding statement balance","My payments made since the last statement","How much money I have left in my budget"]},
+    {id:"q11",n:11,type:"long",text:"If you could improve one thing about the CIBC mobile banking experience, what would it be?",hint:"Optional."}]},
+  {title:"A redesigned screen", mock:true, qs:[
+    {id:"q12",n:12,type:"scale",text:"Looking at the redesigned screen, how easy or difficult would it be to understand your monthly spending?",req:true},
+    {id:"q13",n:13,type:"grid",text:"How useful would the following information be to you on the main account screen?",req:true,
+      rows:["Total spending for the current month","A breakdown of posted and pending purchases","The current balance with an explanation of what it includes","Statement balance and payments made since the statement"],
+      cols:["Not at all useful","Slightly useful","Moderately useful","Very useful","Extremely useful"]},
+    {id:"q14",n:14,type:"long",text:"Is there anything about the redesigned screen that you find confusing or would change?",hint:"Optional."}]}
+];
+const SCALE_ENDS=["Very difficult","Very easy"];
+const ALL_QS=PAGES.flatMap(p=>p.qs);
+
+const KEY="cibc-survey-responses-v1";
+let responses=load(), mockOk=true, confirmClear=false;
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||"[]");}catch(e){return [];}}
+function persist(){localStorage.setItem(KEY,JSON.stringify(responses));}
+function updateStatus(){const n=responses.filter(r=>!r.screenedOut).length;$("#status").textContent=`${n} completed response${n===1?"":"s"} saved on this laptop`;}
+let page=-1, answers={}, errorMsg="", saving=false, mode="survey", note="";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function visiblePages(){return PAGES.map((p,i)=>i).filter(i=>!PAGES[i].when||PAGES[i].when(answers));}
+
+function qHTML(q){
+  const v=answers[q.id];
+  const head=`${q.n?`<span class="num">${q.n}.</span>`:""}${esc(q.text)}`;
+  const hint=q.hint?`<div class="hint">${esc(q.hint)}</div>`:"";
+  if(q.type==="radio"||q.type==="check"){
+    const t=q.type==="radio"?"radio":"checkbox";
+    const sel=q.type==="radio"?[v]:(v||[]);
+    let o=q.opts.map((op,i)=>`<label class="opt"><input type="${t}" name="${q.id}" id="${q.id}_${i}" value="${esc(op)}" ${sel.includes(op)?"checked":""}><span>${esc(op)}</span></label>`).join("");
+    if(q.other){const on=sel.includes("Other");o+=`<label class="opt"><input type="${t}" name="${q.id}" id="${q.id}_other" value="Other" ${on?"checked":""}><span>Other</span></label><div class="other-text" ${on?"":"hidden"}><input type="text" id="${q.id}_othertext" placeholder="Please describe" value="${esc(answers[q.id+"_other"]||"")}"></div>`;}
+    return `<fieldset class="q"><legend>${head}</legend>${hint}<div class="opts">${o}</div></fieldset>`;
+  }
+  if(q.type==="scale"){
+    return `<fieldset class="q"><legend>${head}</legend>${hint}<div class="scale">${[1,2,3,4,5].map(n=>`<label><input type="radio" name="${q.id}" id="${q.id}_${n}" value="${n}" ${v==n?"checked":""}>${n}</label>`).join("")}</div><div class="scale-ends"><span>1 · ${SCALE_ENDS[0]}</span><span>${SCALE_ENDS[1]} · 5</span></div></fieldset>`;
+  }
+  if(q.type==="grid"){
+    const g=v||{};
+    return `<fieldset class="q"><legend>${head}</legend>${hint}<div class="grid-wrap"><table class="mgrid"><thead><tr><th></th>${q.cols.map(c=>`<th scope="col">${esc(c)}</th>`).join("")}</tr></thead><tbody>${q.rows.map((r,ri)=>`<tr><th scope="row" style="font-weight:400">${esc(r)}</th>${q.cols.map((c,ci)=>`<td><input type="radio" name="${q.id}_r${ri}" id="${q.id}_r${ri}_${ci}" value="${esc(c)}" aria-label="${esc(r)}: ${esc(c)}" ${g[r]===c?"checked":""}></td>`).join("")}</tr>`).join("")}</tbody></table></div></fieldset>`;
+  }
+  const tag=q.type==="long"?`<textarea id="${q.id}">${esc(v||"")}</textarea>`:`<input type="text" id="${q.id}" value="${esc(v||"")}">`;
+  return `<div class="q"><label class="qt" for="${q.id}">${head}</label>${hint}${tag}</div>`;
+}
+
+function collect(){
+  const p=PAGES[page]; if(!p) return;
+  for(const q of p.qs){
+    if(q.type==="radio"){const c=document.querySelector(`input[name="${q.id}"]:checked`);answers[q.id]=c?c.value:undefined;}
+    else if(q.type==="check"){answers[q.id]=[...document.querySelectorAll(`input[name="${q.id}"]:checked`)].map(i=>i.value);}
+    else if(q.type==="scale"){const c=document.querySelector(`input[name="${q.id}"]:checked`);answers[q.id]=c?Number(c.value):undefined;}
+    else if(q.type==="grid"){const g={};q.rows.forEach((r,ri)=>{const c=document.querySelector(`input[name="${q.id}_r${ri}"]:checked`);if(c)g[r]=c.value;});answers[q.id]=g;}
+    else answers[q.id]=$("#"+q.id).value.trim();
+    if(q.other){const t=$("#"+q.id+"_othertext");answers[q.id+"_other"]=t?t.value.trim():"";}
+  }
+}
+function validate(){
+  for(const q of PAGES[page].qs){
+    const v=answers[q.id];
+    if(q.req){
+      if(q.type==="grid"&&Object.keys(v||{}).length<q.rows.length) return `Please rate every row in question ${q.n}.`;
+      if(q.type!=="grid"&&(v===undefined||v===""||(Array.isArray(v)&&!v.length))) return `Please answer question ${q.n}.`;
+    }
+    if(q.max&&(v||[]).length>q.max) return `Please choose up to ${q.max} options in question ${q.n}.`;
+    const hasOther=Array.isArray(v)?v.includes("Other"):v==="Other";
+    if(hasOther&&!answers[q.id+"_other"]) return `Please describe your "Other" answer in question ${q.n}.`;
+  }
+  return "";
+}
+
+function renderProgress(){
+  const vp=visiblePages(), idx=vp.indexOf(page);
+  $("#progress").innerHTML=vp.map((_,i)=>`<span class="${idx>=i?"on":""}"></span>`).join("");
+  $("#progress").style.gridTemplateColumns=`repeat(${vp.length},1fr)`;
+}
+
+function render(){
+  const main=$("#main");
+  $("#toggle").textContent=mode==="survey"?"Responses":"Back to survey";
+  $("#toggle").href=mode==="survey"?"#responses":"#";
+  if(mode==="responses"){$("#progress").innerHTML="";return renderResponses();}
+  renderProgress();
+  if(page===-1){
+    main.innerHTML=`<div class="card intro"><h2>Thanks for helping with this research</h2><p>I'm a UX designer studying how people understand their spending and balances in the CIBC mobile app. It takes about 5 to 7 minutes. Your answers are anonymous. Please don't enter account numbers or exact amounts.</p><div class="nav"><span></span><button class="primary" id="start">Start the survey</button></div></div>`;
+    $("#start").onclick=()=>{page=0;render();scrollTo(0,0);};
+    return;
+  }
+  if(page==="done"){
+    main.innerHTML=`<div class="card done"><h2>${answers.__screened?"Thanks for your time":"Thank you, your answers are saved"}</h2><p>${answers.__screened?"This survey is for current CIBC customers, so that's everything for now.":"Your feedback will help shape a clearer way to see monthly spending."}</p><div class="nav"><span></span><button class="primary" id="next">Start a new response</button></div></div>`;
+    $("#next").onclick=()=>{answers={};page=-1;render();scrollTo(0,0);};
+    return;
+  }
+  const p=PAGES[page], vp=visiblePages(), last=vp[vp.length-1]===page;
+  let mock="";
+  if(p.mock) mock=`<div class="mock">${mockOk?`<img src="mockup.png" alt="Before-and-after mockup of the redesigned CIBC account screen" onerror="mockOk=false;this.replaceWith(Object.assign(document.createElement('span'),{textContent:'Mockup image not found. Add mockup.png to the site.'}))">`:`<span>Mockup image not found. Add mockup.png to the site.</span>`}<span>Take a look at the before and after screens, then answer the questions below.</span></div>`;
+  main.innerHTML=`<div class="card"><h2>${esc(p.title)}</h2>${mock}${p.qs.map(qHTML).join("")}${errorMsg?`<div class="err" role="alert">${esc(errorMsg)}</div>`:""}<div class="nav"><button id="back">Back</button><button class="primary" id="fwd" ${saving?"disabled":""}>${saving?"Saving…":last?"Submit":"Next"}</button></div></div>`;
+  main.querySelectorAll('input[value="Other"]').forEach(inp=>{
+    const sync=()=>{const box=$("#"+inp.name+"_othertext").parentElement;box.hidden=!inp.checked;};
+    document.querySelectorAll(`input[name="${inp.name}"]`).forEach(x=>x.addEventListener("change",sync));
+  });
+  $("#back").onclick=()=>{collect();errorMsg="";const i=vp.indexOf(page);page=i>0?vp[i-1]:-1;render();scrollTo(0,0);};
+  $("#fwd").onclick=forward;
+}
+
+async function forward(){
+  collect(); errorMsg=validate(); if(errorMsg) return render();
+  if(page===0&&answers.q1==="No, I don't currently use CIBC."){answers.__screened=true;await submit();return;}
+  const vp=visiblePages(), i=vp.indexOf(page);
+  if(i<vp.length-1){page=vp[i+1];render();scrollTo(0,0);return;}
+  await submit();
+}
+
+async function submit(){
+  saving=true; render();
+  const vis=visiblePages(), rec={createdAt:new Date().toISOString(),screenedOut:!!answers.__screened};
+  for(const q of ALL_QS){
+    const shown=vis.includes(PAGES.findIndex(p=>p.qs.includes(q)));
+    if(!shown||answers.__screened&&q.id!=="q1") continue;
+    if(answers[q.id]!==undefined) rec[q.id]=answers[q.id];
+    if(q.other&&answers[q.id+"_other"]) rec[q.id+"_other"]=answers[q.id+"_other"];
+  }
+  try{responses.push(rec);persist();updateStatus();saving=false;page="done";render();scrollTo(0,0);}
+  catch(e){responses.pop();saving=false;errorMsg="Couldn't save these answers. The browser may be blocking storage. Download your CSV, then check this browser's site data settings.";render();}
+}
+
+function fmt(v){if(v==null)return"";if(Array.isArray(v))return v.join("; ");if(typeof v==="object")return Object.entries(v).map(([k,x])=>`${k}: ${x}`).join("; ");return String(v);}
+function renderResponses(){
+  const done=responses.filter(r=>!r.screenedOut), avg=k=>{const xs=done.map(r=>r[k]).filter(Number.isFinite);return xs.length?(xs.reduce((a,b)=>a+b,0)/xs.length).toFixed(1):"–";};
+  const rows=[...responses].sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||"")).slice(0,25);
+  $("#main").innerHTML=`<div class="card"><h2>Responses</h2>
+  <div class="stats"><div class="stat"><b>${done.length}</b><span>completed</span></div><div class="stat"><b>${responses.length-done.length}</b><span>screened out (not CIBC)</span></div><div class="stat"><b>${avg("q6")}</b><span>avg. ease today (Q6, 1–5)</span></div><div class="stat"><b>${avg("q12")}</b><span>avg. ease redesign (Q12, 1–5)</span></div></div>
+  <div class="nav"><button id="csv" ${responses.length?"":"disabled"}>Download as CSV</button>${note?`<span class="toast">${esc(note)}</span>`:""}</div>
+  <div class="q"><div class="qt" style="font-weight:600">Clear responses</div><div class="hint">Download the CSV first. Clearing can't be undone.</div><div class="nav" style="justify-content:flex-start">${confirmClear?`<button id="clearyes" class="primary">Yes, delete all ${responses.length} responses</button><button id="clearno">Cancel</button>`:`<button id="clear" ${responses.length?"":"disabled"}>Clear all responses</button>`}</div></div>
+  <div class="list">${rows.length?`<table><thead><tr><th>When</th><th>Q2 app use</th><th>Q6</th><th>Q12</th><th>Q11 one improvement</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(new Date(r.createdAt).toLocaleString())}</td><td>${r.screenedOut?"Screened out":esc(r.q2||"")}</td><td>${esc(r.q6??"")}</td><td>${esc(r.q12??"")}</td><td>${esc(r.q11||"")}</td></tr>`).join("")}</tbody></table>`:`<p class="hint" style="margin:0">${"No responses yet. They'll appear here as people submit."}</p>`}</div></div>`;
+  $("#csv").onclick=exportCsv;
+  if($("#clear"))$("#clear").onclick=()=>{confirmClear=true;render();};
+  if($("#clearyes"))$("#clearyes").onclick=()=>{responses=[];persist();confirmClear=false;note="All responses cleared.";updateStatus();render();};
+  if($("#clearno"))$("#clearno").onclick=()=>{confirmClear=false;render();};
+}
+async function exportCsv(){
+  const cols=["createdAt","screenedOut"];
+  for(const q of ALL_QS){if(q.type==="grid")q.rows.forEach(r=>cols.push(`${q.id}: ${r}`));else{cols.push(q.id);if(q.other)cols.push(q.id+"_other");}}
+  const cell=s=>`"${String(s).replace(/"/g,'""')}"`;
+  const lines=[cols.map(cell).join(",")];
+  for(const r of responses) lines.push(cols.map(c=>{const m=c.match(/^(q13): (.*)$/);return cell(m?(r.q13||{})[m[2]]||"":fmt(r[c]));}).join(","));
+  const url=URL.createObjectURL(new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv"}));
+  const a=Object.assign(document.createElement("a"),{href:url,download:`cibc-survey-responses-${new Date().toISOString().slice(0,10)}.csv`});
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  note="CSV downloaded.";render();
+}
+
+function route(){collectIfSurvey();confirmClear=false;mode=location.hash==="#responses"?"responses":"survey";note="";render();}
+function collectIfSurvey(){if(mode==="survey"&&typeof page==="number"&&page>=0)collect();}
+addEventListener("hashchange",route);
+route();
+
+updateStatus();
+</script>
+</body>
+</html>
